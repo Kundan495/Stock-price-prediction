@@ -42,24 +42,33 @@ if retrain:
         st.dataframe(df.tail(10))
 
         with st.spinner("Training model and predicting..."):
-            results = train_and_predict(df["Close"], window=window, test_size_days=int(test_size_days))
+            try:
+                results = train_and_predict(df["Close"], window=window, test_size_days=int(test_size_days))
+            except ValueError as e:
+                st.error(f"Unable to train model: {e}")
+                results = None
+            except Exception as e:
+                st.error("An unexpected error occurred during training. See details:")
+                st.exception(e)
+                results = None
 
-        preds_df = results["predictions_df"]
-        metrics = results["metrics"]
-        next_pred = results["next_day_prediction"]
+        if results is not None:
+            preds_df = results["predictions_df"]
+            metrics = results["metrics"]
+            next_pred = results["next_day_prediction"]
 
-        st.subheader("Backtest results")
-        st.write("Metrics (on the held-out backtest set):")
-        st.markdown(style_metrics(metrics), unsafe_allow_html=True)
+            st.subheader("Backtest results")
+            st.write("Metrics (on the held-out backtest set):")
+            st.markdown(style_metrics(metrics), unsafe_allow_html=True)
 
-        st.plotly_chart(plot_actual_vs_pred(preds_df), use_container_width=True)
+            st.plotly_chart(plot_actual_vs_pred(preds_df), use_container_width=True)
 
-        st.subheader("Next-day forecast")
-        st.markdown(
-            f"Model predicts next-day close (based on last {window} days): **{next_pred:.4f} {''}**"
-        )
+            st.subheader("Next-day forecast")
+            st.markdown(
+                f"Model predicts next-day close (based on last {window} days): **{next_pred:.4f} {''}**"
+            )
 
-        st.info("This is a simple demo model. For production you'd use richer features, better models (e.g., tree ensembles, LSTM), and robust validation.")
+            st.info("This is a simple demo model. For production you'd use richer features, better models (e.g., tree ensembles, LSTM), and robust validation.")
 
 else:
     st.info("Configure ticker, date range and parameters in the sidebar and click 'Fetch & Train' to begin.")

@@ -1,7 +1,7 @@
-````markdown
 # Stock Price Prediction Web App (Streamlit + numpy/pandas)
 
 This repository contains a minimal Streamlit web app demonstrating a simple stock price prediction workflow:
+
 - fetch historical market data with `yfinance`
 - create windowed features using `numpy` / `pandas`
 - train a simple `LinearRegression` model (from `scikit-learn`)
@@ -20,7 +20,7 @@ This repository contains a minimal Streamlit web app demonstrating a simple stoc
    ```bash
    python -m venv .venv
    source .venv/bin/activate  # macOS/Linux
-   .venv\Scripts\activate     # Windows
+   .venv\\Scripts\\activate     # Windows
    ```
 3. Install dependencies:
    ```bash
@@ -41,4 +41,3 @@ This repository contains a minimal Streamlit web app demonstrating a simple stoc
 
 ## License
 MIT — feel free to reuse and extend.
-````

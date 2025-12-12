@@ -2,7 +2,21 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_squared_error, mean_absolute_percentage_error
+from sklearn.metrics import mean_squared_error
+
+# Provide a robust MAPE function that works even if older scikit-learn doesn't export it
+try:
+    from sklearn.metrics import mean_absolute_percentage_error as _mape
+    def mean_absolute_percentage_error(y_true, y_pred):
+        return float(_mape(y_true, y_pred))
+except Exception:
+    def mean_absolute_percentage_error(y_true, y_pred):
+        y_true = np.asarray(y_true, dtype=float)
+        y_pred = np.asarray(y_pred, dtype=float)
+        eps = 1e-8
+        denom = np.maximum(np.abs(y_true), eps)
+        return float(np.mean(np.abs((y_true - y_pred) / denom)))
+
 
 def create_window_features(series: pd.Series, window: int):
     """
@@ -26,6 +40,7 @@ def create_window_features(series: pd.Series, window: int):
     X = np.array(X)
     y = np.array(y)
     return X, y, y_dates
+
 
 def train_and_predict(close_series: pd.Series, window: int = 5, test_size_days: int = 60):
     """
@@ -61,7 +76,7 @@ def train_and_predict(close_series: pd.Series, window: int = 5, test_size_days: 
 
     # metrics
     rmse = float(np.sqrt(mean_squared_error(y_test, y_pred)))
-    mape = float(mean_absolute_percentage_error(y_test, y_pred))
+    mape = mean_absolute_percentage_error(y_test, y_pred)
 
     metrics = {
         "rmse": rmse,
